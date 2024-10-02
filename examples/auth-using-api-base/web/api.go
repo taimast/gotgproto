@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/celestix/gotgproto"
+	"github.com/taimast/gotgproto"
 )
 
 // Start a web server and wait

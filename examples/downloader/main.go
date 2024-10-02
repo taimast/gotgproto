@@ -6,12 +6,12 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/celestix/gotgproto"
-	"github.com/celestix/gotgproto/dispatcher/handlers"
-	"github.com/celestix/gotgproto/dispatcher/handlers/filters"
-	"github.com/celestix/gotgproto/ext"
-	"github.com/celestix/gotgproto/functions"
-	"github.com/celestix/gotgproto/sessionMaker"
+	"github.com/taimast/gotgproto"
+	"github.com/taimast/gotgproto/dispatcher/handlers"
+	"github.com/taimast/gotgproto/dispatcher/handlers/filters"
+	"github.com/taimast/gotgproto/ext"
+	"github.com/taimast/gotgproto/functions"
+	"github.com/taimast/gotgproto/sessionMaker"
 	"github.com/go-faster/errors"
 )
 

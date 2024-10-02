@@ -1,4 +1,4 @@
-module github.com/celestix/gotgproto
+module github.com/taimast/gotgproto
 
 go 1.21
 

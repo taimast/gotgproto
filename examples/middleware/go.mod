@@ -1,9 +1,9 @@
-module github.com/celestix/gotgproto/examples/middleware
+module github.com/taimast/gotgproto/examples/middleware
 
 go 1.21.4
 
 require (
-	github.com/celestix/gotgproto v1.0.0-beta17
+	github.com/taimast/gotgproto v1.0.0-beta17
 	github.com/gotd/contrib v0.19.0
 	github.com/gotd/td v0.103.0
 	golang.org/x/time v0.5.0
@@ -46,4 +46,4 @@ require (
 	rsc.io/qr v0.2.0 // indirect
 )
 
-replace github.com/celestix/gotgproto => ../../
+replace github.com/taimast/gotgproto => ../../

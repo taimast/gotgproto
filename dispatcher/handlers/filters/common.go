@@ -1,8 +1,8 @@
 package filters
 
 import (
-	"github.com/celestix/gotgproto/ext"
-	"github.com/celestix/gotgproto/types"
+	"github.com/taimast/gotgproto/ext"
+	"github.com/taimast/gotgproto/types"
 	"github.com/gotd/td/tg"
 )
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/celestix/gotgproto/functions"
-	"github.com/celestix/gotgproto/storage"
+	"github.com/taimast/gotgproto/functions"
+	"github.com/taimast/gotgproto/storage"
 	"github.com/gotd/td/session"
 	"github.com/gotd/td/session/tdesktop"
 	"gorm.io/gorm"

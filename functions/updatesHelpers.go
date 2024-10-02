@@ -1,7 +1,7 @@
 package functions
 
 import (
-	"github.com/celestix/gotgproto/storage"
+	"github.com/taimast/gotgproto/storage"
 	"github.com/gotd/td/tg"
 )
 

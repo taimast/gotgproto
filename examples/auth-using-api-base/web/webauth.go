@@ -3,7 +3,7 @@ package web
 import (
 	"fmt"
 
-	"github.com/celestix/gotgproto"
+	"github.com/taimast/gotgproto"
 )
 
 type webAuth struct {
