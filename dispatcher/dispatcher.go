@@ -138,6 +138,10 @@ func (dp *NativeDispatcher) dispatch(ctx context.Context, e tg.Entities, update 
 }
 
 func (dp *NativeDispatcher) handleUpdate(ctx context.Context, e tg.Entities, update tg.UpdateClass) error {
+	if dp.client == nil {
+		dp.cancel()
+		return nil
+	}
 	u := ext.GetNewUpdate(ctx, dp.client, dp.self.ID, dp.pStorage, &e, update)
 	dp.handleUpdateRepliedToMessage(u, ctx)
 	c := ext.NewContext(ctx, dp.client, dp.pStorage, dp.self, dp.sender, &e, dp.setReply)
