@@ -5,13 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"runtime/debug"
 
-	"github.com/taimast/gotgproto/ext"
-	"github.com/taimast/gotgproto/storage"
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/message"
 	"github.com/gotd/td/tg"
+	"github.com/taimast/gotgproto/ext"
+	"github.com/taimast/gotgproto/storage"
 	"go.uber.org/multierr"
 )
 
@@ -138,14 +139,23 @@ func (dp *NativeDispatcher) dispatch(ctx context.Context, e tg.Entities, update 
 }
 
 func (dp *NativeDispatcher) handleUpdate(ctx context.Context, e tg.Entities, update tg.UpdateClass) error {
-	if dp.client == nil {
-		dp.cancel()
-		return nil
-	}
+	// Проверка на панику, если панику Return null
+	var err error
+
+	defer func() {
+		if r := recover(); r != nil {
+			slog.Error("Panic in handler when handling update",
+				slog.String("update", fmt.Sprintf("%+v", update)),
+				slog.String("error", fmt.Sprintf("%s", r)),
+			)
+			err = fmt.Errorf("panic occurred: %v", r)
+		}
+	}()
+
 	u := ext.GetNewUpdate(ctx, dp.client, dp.self.ID, dp.pStorage, &e, update)
 	dp.handleUpdateRepliedToMessage(u, ctx)
 	c := ext.NewContext(ctx, dp.client, dp.pStorage, dp.self, dp.sender, &e, dp.setReply)
-	var err error
+
 	defer func() {
 		if r := recover(); r != nil {
 			errorStack := fmt.Sprintf("%s\n", r) + string(debug.Stack())
