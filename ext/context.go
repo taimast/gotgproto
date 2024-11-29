@@ -569,7 +569,7 @@ func (ctx *Context) DeleteMessages(chatId int64, messageIDs []int) error {
 		return mtp_errors.ErrPeerNotFound
 	}
 	switch storage.EntityType(peer.Type) {
-	case storage.TypeChat:
+	case storage.TypeChat, storage.TypeUser:
 		_, err := ctx.Raw.MessagesDeleteMessages(ctx, &tg.MessagesDeleteMessagesRequest{
 			Revoke: true,
 			ID:     messageIDs,
@@ -584,8 +584,6 @@ func (ctx *Context) DeleteMessages(chatId int64, messageIDs []int) error {
 			ID: messageIDs,
 		})
 		return err
-	case storage.TypeUser:
-		return mtp_errors.ErrNotChat
 	default:
 		return mtp_errors.ErrPeerNotFound
 	}
@@ -618,19 +616,19 @@ func (ctx *Context) ForwardMessages(fromChatId, toChatId int64, request *tg.Mess
 		request.RandomID[i] = ctx.generateRandomID()
 	}
 	return ctx.Raw.MessagesForwardMessages(ctx, &tg.MessagesForwardMessagesRequest{
-		RandomID: request.RandomID,
-		ID:       request.ID,
-		FromPeer: fromPeer,
-		ToPeer:   toPeer,
-		DropAuthor: request.DropAuthor,
-		Silent:     request.Silent,
-		Background: request.Background,
-		WithMyScore: request.WithMyScore,
-		DropMediaCaptions: request.DropMediaCaptions,
-		Noforwards: request.Noforwards,
-		TopMsgID: request.TopMsgID,
-		ScheduleDate: request.ScheduleDate,
-		SendAs: request.SendAs,
+		RandomID:           request.RandomID,
+		ID:                 request.ID,
+		FromPeer:           fromPeer,
+		ToPeer:             toPeer,
+		DropAuthor:         request.DropAuthor,
+		Silent:             request.Silent,
+		Background:         request.Background,
+		WithMyScore:        request.WithMyScore,
+		DropMediaCaptions:  request.DropMediaCaptions,
+		Noforwards:         request.Noforwards,
+		TopMsgID:           request.TopMsgID,
+		ScheduleDate:       request.ScheduleDate,
+		SendAs:             request.SendAs,
 		QuickReplyShortcut: request.QuickReplyShortcut,
 	})
 }
