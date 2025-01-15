@@ -676,10 +676,12 @@ func (ctx *Context) ResolveUsername(username string) (types.EffectiveChat, error
 	return ctx.extractContactResolvedPeer(
 		ctx.Raw.ContactsResolveUsername(
 			ctx,
-			strings.TrimPrefix(
-				username,
-				"@",
-			),
+			&tg.ContactsResolveUsernameRequest{
+				Username: strings.TrimPrefix(
+					username,
+					"@",
+				),
+			},
 		),
 	)
 }
