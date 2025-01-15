@@ -693,7 +693,7 @@ func (ctx *Context) extractContactResolvedPeer(p *tg.ContactsResolvedPeer, err e
 	functions.SavePeersFromClassArray(ctx.PeerStorage, p.Chats, p.Users)
 	switch p.Peer.(type) {
 	case *tg.PeerChannel:
-		if p.Chats == nil || len(p.Chats) == 0 {
+		if len(p.Chats) == 0 {
 			return &types.EmptyUC{}, errors.New("peer info not found in the resolved Chats")
 		}
 		switch chat := p.Chats[0].(type) {
@@ -704,7 +704,7 @@ func (ctx *Context) extractContactResolvedPeer(p *tg.ContactsResolvedPeer, err e
 			return &types.EmptyUC{}, errors.New("peer could not be resolved because Channel Forbidden")
 		}
 	case *tg.PeerUser:
-		if p.Users == nil || len(p.Users) == 0 {
+		if len(p.Users) == 0 {
 			return &types.EmptyUC{}, errors.New("peer info not found in the resolved Chats")
 		}
 		switch user := p.Users[0].(type) {
@@ -814,8 +814,8 @@ func (ctx *Context) DownloadMedia(media tg.MessageMediaClass, downloadOutput Dow
 	return downloadOutput.run(ctx, d)
 }
 
-func (ctx *Context) TransferStarGift(msgId int, toId int64) (tg.UpdatesClass, error) {
-	peerUser := ctx.PeerStorage.GetPeerById(toId)
+func (ctx *Context) TransferStarGift(chatId int64, msgId int) (tg.UpdatesClass, error) {
+	peerUser := ctx.PeerStorage.GetPeerById(chatId)
 	if peerUser == nil {
 		return nil, mtp_errors.ErrPeerNotFound
 	}
