@@ -813,3 +813,21 @@ func (ctx *Context) DownloadMedia(media tg.MessageMediaClass, downloadOutput Dow
 	}
 	return downloadOutput.run(ctx, d)
 }
+
+func (ctx *Context) TransferStarGift(msgId int, toId int64) (tg.UpdatesClass, error) {
+	peerUser := ctx.PeerStorage.GetPeerById(toId)
+	if peerUser == nil {
+		return nil, mtp_errors.ErrPeerNotFound
+	}
+	upd, err := ctx.Raw.PaymentsTransferStarGift(ctx, &tg.PaymentsTransferStarGiftRequest{
+		MsgID: msgId,
+		ToID: &tg.InputUser{
+			UserID:     peerUser.ID,
+			AccessHash: peerUser.AccessHash,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return upd, err
+}
