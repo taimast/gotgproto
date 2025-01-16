@@ -569,7 +569,7 @@ func (ctx *Context) DeleteMessages(chatId int64, messageIDs []int) error {
 		return mtp_errors.ErrPeerNotFound
 	}
 	switch storage.EntityType(peer.Type) {
-	case storage.TypeChat:
+	case storage.TypeChat, storage.TypeUser:
 		_, err := ctx.Raw.MessagesDeleteMessages(ctx, &tg.MessagesDeleteMessagesRequest{
 			Revoke: true,
 			ID:     messageIDs,
@@ -584,8 +584,6 @@ func (ctx *Context) DeleteMessages(chatId int64, messageIDs []int) error {
 			ID: messageIDs,
 		})
 		return err
-	case storage.TypeUser:
-		return mtp_errors.ErrNotChat
 	default:
 		return mtp_errors.ErrPeerNotFound
 	}
@@ -618,19 +616,19 @@ func (ctx *Context) ForwardMessages(fromChatId, toChatId int64, request *tg.Mess
 		request.RandomID[i] = ctx.generateRandomID()
 	}
 	return ctx.Raw.MessagesForwardMessages(ctx, &tg.MessagesForwardMessagesRequest{
-		RandomID: request.RandomID,
-		ID:       request.ID,
-		FromPeer: fromPeer,
-		ToPeer:   toPeer,
-		DropAuthor: request.DropAuthor,
-		Silent:     request.Silent,
-		Background: request.Background,
-		WithMyScore: request.WithMyScore,
-		DropMediaCaptions: request.DropMediaCaptions,
-		Noforwards: request.Noforwards,
-		TopMsgID: request.TopMsgID,
-		ScheduleDate: request.ScheduleDate,
-		SendAs: request.SendAs,
+		RandomID:           request.RandomID,
+		ID:                 request.ID,
+		FromPeer:           fromPeer,
+		ToPeer:             toPeer,
+		DropAuthor:         request.DropAuthor,
+		Silent:             request.Silent,
+		Background:         request.Background,
+		WithMyScore:        request.WithMyScore,
+		DropMediaCaptions:  request.DropMediaCaptions,
+		Noforwards:         request.Noforwards,
+		TopMsgID:           request.TopMsgID,
+		ScheduleDate:       request.ScheduleDate,
+		SendAs:             request.SendAs,
 		QuickReplyShortcut: request.QuickReplyShortcut,
 	})
 }
@@ -678,10 +676,12 @@ func (ctx *Context) ResolveUsername(username string) (types.EffectiveChat, error
 	return ctx.extractContactResolvedPeer(
 		ctx.Raw.ContactsResolveUsername(
 			ctx,
-			strings.TrimPrefix(
-				username,
-				"@",
-			),
+			&tg.ContactsResolveUsernameRequest{
+				Username: strings.TrimPrefix(
+					username,
+					"@",
+				),
+			},
 		),
 	)
 }
@@ -693,7 +693,7 @@ func (ctx *Context) extractContactResolvedPeer(p *tg.ContactsResolvedPeer, err e
 	functions.SavePeersFromClassArray(ctx.PeerStorage, p.Chats, p.Users)
 	switch p.Peer.(type) {
 	case *tg.PeerChannel:
-		if p.Chats == nil || len(p.Chats) == 0 {
+		if len(p.Chats) == 0 {
 			return &types.EmptyUC{}, errors.New("peer info not found in the resolved Chats")
 		}
 		switch chat := p.Chats[0].(type) {
@@ -704,7 +704,7 @@ func (ctx *Context) extractContactResolvedPeer(p *tg.ContactsResolvedPeer, err e
 			return &types.EmptyUC{}, errors.New("peer could not be resolved because Channel Forbidden")
 		}
 	case *tg.PeerUser:
-		if p.Users == nil || len(p.Users) == 0 {
+		if len(p.Users) == 0 {
 			return &types.EmptyUC{}, errors.New("peer info not found in the resolved Chats")
 		}
 		switch user := p.Users[0].(type) {
@@ -812,4 +812,22 @@ func (ctx *Context) DownloadMedia(media tg.MessageMediaClass, downloadOutput Dow
 		d.WithVerify(*opts.Verify)
 	}
 	return downloadOutput.run(ctx, d)
+}
+
+func (ctx *Context) TransferStarGift(chatId int64, msgId int) (tg.UpdatesClass, error) {
+	peerUser := ctx.PeerStorage.GetPeerById(chatId)
+	if peerUser == nil {
+		return nil, mtp_errors.ErrPeerNotFound
+	}
+	upd, err := ctx.Raw.PaymentsTransferStarGift(ctx, &tg.PaymentsTransferStarGiftRequest{
+		MsgID: msgId,
+		ToID: &tg.InputUser{
+			UserID:     peerUser.ID,
+			AccessHash: peerUser.AccessHash,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return upd, err
 }

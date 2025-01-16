@@ -238,3 +238,14 @@ func GetUserProfilePhotos[chatUnion ChatUnion](ctx *ext.Context, user chatUnion,
 
 	return ctx.GetUserProfilePhotos(userId, opts)
 }
+
+// TransferStarGift is a generic helper for ext.Context.TransferStarGift method.
+func TransferStarGift[chatUnion ChatUnion](ctx *ext.Context, chat chatUnion, msgId int) (tg.UpdatesClass, error) {
+
+	chatId, err := getIdByUnion(ctx, chat)
+	if err != nil {
+		return nil, err
+	}
+
+	return ctx.TransferStarGift(chatId, msgId)
+}

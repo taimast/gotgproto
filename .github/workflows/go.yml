@@ -10,9 +10,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
-      matrix:
-        arch: [amd64, 386]
+      fail-fast: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,7 +18,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.21
+          go-version: 1.23.3
 
       - name: Get Go environment
         id: go-env
@@ -41,7 +39,7 @@ jobs:
       - name: Lint
         env:
           GOARCH: ${{ matrix.arch }}
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v6.1.1
         with:
           version: latest
           args: --timeout 30m
@@ -49,13 +47,17 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        arch: [amd64, 386]
     steps:
     - uses: actions/checkout@v3
 
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: 1.21
+        go-version: 1.23.3
 
     - name: Build
       run: go build -v ./...
