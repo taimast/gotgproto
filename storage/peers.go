@@ -1,6 +1,8 @@
 package storage
 
 import (
+	"log/slog"
+
 	"github.com/gotd/td/tg"
 )
 
@@ -34,7 +36,15 @@ func (p *PeerStorage) AddPeer(iD, accessHash int64, peerType EntityType, userNam
 	if p.inMemory {
 		return
 	}
-	go p.addPeerToDb(peer)
+	go func() {
+		// recover
+		defer func() {
+			if r := recover(); r != nil {
+				slog.Error("Recovered in AddPeer", slog.Any("error", r))
+			}
+		}()
+		p.addPeerToDb(peer)
+	}()
 }
 
 func (p *PeerStorage) addPeerToDb(peer *Peer) {

@@ -9,12 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/taimast/gotgproto/dispatcher"
-	intErrors "github.com/taimast/gotgproto/errors"
-	"github.com/taimast/gotgproto/ext"
-	"github.com/taimast/gotgproto/functions"
-	"github.com/taimast/gotgproto/sessionMaker"
-	"github.com/taimast/gotgproto/storage"
 	"github.com/gotd/td/session"
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/auth"
@@ -22,6 +16,12 @@ import (
 	"github.com/gotd/td/telegram/message"
 	"github.com/gotd/td/tg"
 	"github.com/pkg/errors"
+	"github.com/taimast/gotgproto/dispatcher"
+	intErrors "github.com/taimast/gotgproto/errors"
+	"github.com/taimast/gotgproto/ext"
+	"github.com/taimast/gotgproto/functions"
+	"github.com/taimast/gotgproto/sessionMaker"
+	"github.com/taimast/gotgproto/storage"
 	"go.uber.org/zap"
 )
 
@@ -403,6 +403,14 @@ func (c *Client) Start(opts *ClientOpts) error {
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 	go func(c *Client) {
+		// recover
+		defer func() {
+			if r := recover(); r != nil {
+				c.err = errors.Errorf("Recovered in Start: %v", r)
+				wg.Done()
+			}
+		}()
+
 		if opts.RunMiddleware == nil {
 			c.err = c.Run(c.ctx, c.initialize(&wg))
 		} else {
